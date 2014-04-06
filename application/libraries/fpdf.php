@@ -35,7 +35,7 @@ var $cMargin;            // cell margin
 var $x, $y;              // current position in user unit
 var $lasth;              // height of last printed cell
 var $LineWidth;          // line width in user unit
-var $fontpath;           // path containing fonts
+var $fontpath = "";           // path containing fonts
 var $CoreFonts;          // array of core font names
 var $fonts;              // array of used fonts
 var $FontFiles;          // array of font files
@@ -73,8 +73,9 @@ var $PDFVersion;         // PDF version number
 *                               Public methods                                 *
 *                                                                              *
 *******************************************************************************/
-function FPDF($orientation='P', $unit='mm', $size='A4')
+function FPDF($orientation='P', $unit='mm', $size='A4',$font_path = '')
 {
+
 	// Some checks
 	$this->_dochecks();
 	// Initialization of properties
@@ -101,17 +102,27 @@ function FPDF($orientation='P', $unit='mm', $size='A4')
 	$this->TextColor = '0 g';
 	$this->ColorFlag = false;
 	$this->ws = 0;
+	
 	// Font path
-	if(defined('FPDF_FONTPATH'))
-	{
-		$this->fontpath = FPDF_FONTPATH;
-		if(substr($this->fontpath,-1)!='/' && substr($this->fontpath,-1)!='\\')
-			$this->fontpath .= '/';
+
+	$this->fontpath = $font_path;
+
+	if ($this->fontpath == "") {
+		if(defined('FPDF_FONTPATH')) 
+		{
+			$this->fontpath = FPDF_FONTPATH;
+			if(substr($this->fontpath,-1)!='/' && substr($this->fontpath,-1)!='\\')
+				$this->fontpath .= '/';
+		}
+		elseif(is_dir(dirname(__FILE__).'/font')) {
+			$this->fontpath = dirname(__FILE__).'/font/';
+		}
+		else {
+			$this->fontpath = '';
+		}
 	}
-	elseif(is_dir(dirname(__FILE__).'/font'))
-		$this->fontpath = dirname(__FILE__).'/font/';
-	else
-		$this->fontpath = '';
+	
+	
 	// Core fonts
 	$this->CoreFonts = array('courier', 'helvetica', 'times', 'symbol', 'zapfdingbats');
 	// Scale factor
@@ -165,6 +176,7 @@ function FPDF($orientation='P', $unit='mm', $size='A4')
 	$this->SetCompression(true);
 	// Set default PDF version number
 	$this->PDFVersion = '1.3';
+
 }
 
 function SetMargins($left, $top, $right=null)
@@ -1142,6 +1154,8 @@ function _endpage()
 function _loadfont($font)
 {
 	// Load a font definition file from the font directory
+	// Works as of PHP 4.3.0
+	// directorio actual
 	include($this->fontpath.$font);
 	$a = get_defined_vars();
 	if(!isset($a['name']))

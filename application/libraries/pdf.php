@@ -5,10 +5,10 @@ class Pdf extends FPDF
 	// Extend FPDF using this class
 	// More at fpdf.org -> Tutorials
 
-	function __construct($orientation='P', $unit='mm', $size='A4')
+	function __construct($params)
 	{
 		// Call parent constructor
-		parent::__construct($orientation,$unit,$size);
+		parent::__construct($params['orientation'],$params['unit'],$params['size'],$params['font_path'] );
 	}
 }
 ?>
